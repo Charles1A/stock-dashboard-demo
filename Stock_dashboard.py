@@ -134,7 +134,7 @@ ExHrsΔ_pct_mean_neg = ((stock_df[stock_df['ExHrs_Δ_pct'] < 0])['ExHrs_Δ_pct']
 
 st.subheader(f"Histograms showing % changes in {ticker} price - regular vs extended hours")
 st.write("➡︎ Extended hours data represent the net change from **previous trading day's close to "
-         "next trading day's open** (after hours plus pre-market sessions)")
+         "next trading day's open** (after-hours plus pre-market sessions)")
 
 x0 = stock_df['RegHrs_Δ_pct']
 x1 = stock_df['ExHrs_Δ_pct']
@@ -271,14 +271,13 @@ with st.container():
 
 with st.container():
 
-    st.subheader(f"Mean price changes - Regular vs Extended Hrs")
-    st.write(f"Here, separate means (averages) are calculated for the **up sessions and down "
-             f"sessions** in the study period ({N} days).")
-    st.write("This enables you to see whether the price moved up or down more, on average, "
+    st.subheader(f"Mean price changes - Regular Hrs vs Extended Hrs")
+    st.write("Here, **up** sessions and **down** sessions are aggregated separately, and discrete means (averages) are calculated.")
+    st.write("This clarifies whether the average price movement up or down was greater  "
              "during regular "
              "trading hours or extended hours.")
-    st.write("➡︎ e.g., 'RegHrs_Δ_up' denotes the mean of all regular-hours sessions **that ended "
-             "higher**")
+    st.write("Pattern: 'RegHrs_Δ_up' denotes the mean of all regular-hours sessions **that ended "
+             "higher** in the study period.")
 
     def bar_graph():
 
