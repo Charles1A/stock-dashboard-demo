@@ -25,11 +25,11 @@ today = date.today().strftime('%Y-%m-%d')
 # # ---
 
 # Main body
-st.title("Stock Price Moves Monitor $")
+st.title("Stock Price $ Moves Monitor")
 st.write("When do the biggest price moves happen?")
 st.write("Regular hours? Extended hours?")
-st.write("How often do those moves happen?")
-st.write("**Enter your favorite ticker (left) and find out!**")
+st.write("How often do those moves happen? Are you missing out on the action?")
+st.write("**Enter your favorite ticker (left) to find out!**")
 
 # # ---
 
@@ -132,9 +132,14 @@ RegHrsΔ_pct_mean_neg = ((stock_df[stock_df['RegHrs_Δ_pct'] < 0])['RegHrs_Δ_pc
 ExHrsΔ_pct_mean_pos = ((stock_df[stock_df['ExHrs_Δ_pct'] > 0])['ExHrs_Δ_pct']).mean().round(2)
 ExHrsΔ_pct_mean_neg = ((stock_df[stock_df['ExHrs_Δ_pct'] < 0])['ExHrs_Δ_pct']).mean().round(2)
 
-st.subheader(f"Histograms showing % changes in {ticker} price - regular vs extended hours")
-st.write("➡︎ Extended hours data represent the net change from **previous trading day's close to "
-         "next trading day's open** (after-hours plus pre-market sessions)")
+st.subheader(f"Histograms showing % changes in {ticker} price - Regular & Extended hours")
+st.write("Regular hours: 9:30 a.m. - 4 p.m. Eastern (except when the market closes early)")
+st.write("Extended hours: After-hours of one trading day and pre-market of next trading day ("
+         "t+1), evaluated as one block.")
+st.write("➡︎ Ex Hours price change represents **net change** from one trading day's "
+                                                                 "close "
+                                                                 "to "
+                                                                 "next trading day's open (t+1).")
 
 x0 = stock_df['RegHrs_Δ_pct']
 x1 = stock_df['ExHrs_Δ_pct']
@@ -192,7 +197,7 @@ def dist_fn():
                                   bin_size=.25, show_rug=False,
                              show_curve=False)
 
-    dist_fig.update_layout(title_text='Ex & Reg Hrs Data Overlap',
+    dist_fig.update_layout(title_text='Reg & Ex Hrs Data Overlap',
                            bargap=0,
                            yaxis=dict(
                                title='frequency (proportional)',
@@ -234,29 +239,34 @@ dataFrame = dataFrame.style.format(precision=2).highlight_max(color='#ffbe76').h
 
 with st.container():
 
-    st.subheader(f"Spread and central tendency (past {N} days)")
+    st.subheader(f"Spread and central tendency - Reg & Ex Hrs (past {N} days)")
     # st.write("Min, mean, max, interquartile range and median")
 
-    col5, col6 = st.columns((0.6, 1))
+    col5, col6, col7 = st.columns((0.4, 1, 0.4))
 
     with col5:
 
         st.header("")
-        st.header("")
-        st.header("")
-        st.header("")
-        st.header("")
-
-        st.write("Range & mean")
-        st.dataframe(dataFrame)
+        # st.header("")
+        # st.header("")
+        # st.header("")
 
     with col6:
 
+        st.write(f"Range & mean")
+        st.dataframe(dataFrame)
+
+    # with col6:
+
         fig_box = px.box(x0x1, points=False,
                          labels={'value': '% change in price', 'variable': ''},
-                         title="Hover cursor over plot to see range, IQR, median"
+                         title="Hover cursor over plot to see range, IQR, & median"
                          )
         st.plotly_chart(fig_box, use_container_width=True)
+
+    with col7:
+
+        st.header("")
 
 # # #
 Δ_data = {'mean_Δ': [RegHrsΔ_pct_mean_pos,
@@ -271,13 +281,20 @@ with st.container():
 
 with st.container():
 
-    st.subheader(f"Mean price changes - Regular Hrs vs Extended Hrs")
-    st.write("Here, **up** sessions and **down** sessions are aggregated separately, and discrete means (averages) are calculated.")
-    st.write("This clarifies whether the average price movement up or down was greater  "
-             "during regular "
-             "trading hours or extended hours.")
-    st.write("Pattern: 'RegHrs_Δ_up' denotes the mean of all regular-hours sessions **that ended "
-             "higher** in the study period.")
+    st.subheader(f"Mean price changes - Up vs Down")
+    st.write("Here, sessions that ended **up** are aggregated separately from sessions that ended **down**, and "
+             "discrete "
+             "means ("
+             "averages) are "
+             "calculated.")
+    st.write("This establishes whether the **average** up and down price movements "
+             "were "
+             "greater  "
+             "during **regular** "
+             "or **extended** hours trading.")
+    st.write("Nomenclature: 'RegHrs_Δ_up' denotes the mean price change for all regular hours "
+             "sessions "
+             "in which the ticker ended **higher** during the selected study period.")
 
     def bar_graph():
 
