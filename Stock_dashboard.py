@@ -1,5 +1,6 @@
 import yfinance as yf
 
+import scipy
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -26,10 +27,9 @@ today = date.today().strftime('%Y-%m-%d')
 
 # Main body
 st.title("Stock Price $ Moves Monitor")
-st.write("When do the biggest price moves happen?")
-st.write("Regular hours? Extended hours?")
-st.write("How often do those moves happen? Are you missing out on the action?")
-st.write("**Enter your favorite ticker (left) to find out!**")
+st.write("Do the biggest price moves happen during regular hours or extended hours?")
+st.write("How often do those moves happen?")
+st.write("**Enter your favorite ticker (at left) to find out!**")
 
 # # ---
 
@@ -61,7 +61,7 @@ st.sidebar.metric(label = f'Closing price on last trading day', value = f'${end_
 st.sidebar.metric(label = f'Change from {N} days ago', value = f'${diff:.2f}')
 # ---
 
-# Main body
+# MAIN BODY # # #
 st.subheader(f'**{ticker}** price movement insights - past {N} days.')
 
 # ---
@@ -106,10 +106,10 @@ with col1:
     fig_reg.update_layout(legend_xanchor="center")
     fig_reg.update_traces(textinfo='value', textfont_size=20)
     fig_reg.add_annotation(x= 0.5, y = 0.5,
-                    text = f"{ticker}",
-                    font = dict(size=20,family='Verdana',
-                                color='black'),
-                    showarrow = False)
+                           text = f"{ticker}",
+                           font = dict(size=20,family='Verdana',
+                                       color='black'),
+                           showarrow = False)
     st.plotly_chart(fig_reg, use_container_width=True)
 
 with col2:
@@ -126,20 +126,32 @@ with col2:
                            showarrow = False)
     st.plotly_chart(fig_neg, use_container_width=True)
 
-# # #
+# END of Pie Chart code block # # #
+
+# BEGIN new block for frequency distributions
+
 RegHrsΔ_pct_mean_pos = ((stock_df[stock_df['RegHrs_Δ_pct'] > 0])['RegHrs_Δ_pct']).mean().round(2)
 RegHrsΔ_pct_mean_neg = ((stock_df[stock_df['RegHrs_Δ_pct'] < 0])['RegHrs_Δ_pct']).mean().round(2)
 ExHrsΔ_pct_mean_pos = ((stock_df[stock_df['ExHrs_Δ_pct'] > 0])['ExHrs_Δ_pct']).mean().round(2)
 ExHrsΔ_pct_mean_neg = ((stock_df[stock_df['ExHrs_Δ_pct'] < 0])['ExHrs_Δ_pct']).mean().round(2)
 
-st.subheader(f"Histograms showing % changes in {ticker} price - Regular & Extended hours")
-st.write("Regular hours: 9:30 a.m. - 4 p.m. Eastern (except when the market closes early)")
-st.write("Extended hours: After-hours of one trading day and pre-market of next trading day ("
-         "t+1), evaluated as one block.")
-st.write("➡︎ Ex Hours price change represents **net change** from one trading day's "
-                                                                 "close "
-                                                                 "to "
-                                                                 "next trading day's open (t+1).")
+st.subheader(f"Percent changes in {ticker} price - Comparing Regular & Extended hours")
+
+# Create and populate columns 3, 4, 5
+
+col3, col4, col5 = st.columns((1, 0.2, 1))
+
+with col3:
+    st.write("Regular hours:")
+    st.write("9:30 a.m. - 4 p.m. Eastern Time (except when the market closes early)")
+
+with col4:
+    st.write("")
+
+with col5:
+    st.write("Extended hours:")
+    st.write("Post-market and next day's pre-market (t+1) evaluated as one block")
+    st.write("➡︎ net change from one trading day's close to next trading day's open (t+1)")
 
 x0 = stock_df['RegHrs_Δ_pct']
 x1 = stock_df['ExHrs_Δ_pct']
@@ -150,17 +162,17 @@ def twohist_fn():
         fig_x0 = go.Figure(data=[go.Histogram(x=x0, marker_color='#4b6584',
                                               opacity=0.65)])
         fig_x0.update_layout(bargap=0.1,
-                          yaxis=dict(
-                              title='frequency (days)',
-                              titlefont_size=16,
-                              tickfont_size=14,),
-                          xaxis=dict(
-                              title='% change in price',
-                              titlefont_size=16,
-                              tickfont_size=14,),
+                             yaxis=dict(
+                                 title='frequency (days)',
+                                 titlefont_size=16,
+                                 tickfont_size=14,),
+                             xaxis=dict(
+                                 title='% change in price',
+                                 titlefont_size=16,
+                                 tickfont_size=14,),
                              title=dict(text=f"Regular Hrs (skew = {x0.skew():.2f})"),
                              font=dict(size=15)
-                          )
+                             )
 
         st.plotly_chart(fig_x0, use_container_width=True)
 
@@ -170,17 +182,17 @@ def twohist_fn():
                                               opacity=0.65)])
 
         fig_x1.update_layout(bargap=0.1,
-                      yaxis=dict(
-                          title='frequency (days)',
-                          titlefont_size=16,
-                          tickfont_size=14,),
-                      xaxis=dict(
-                          title='% change in price',
-                          titlefont_size=16,
-                          tickfont_size=14,),
+                             yaxis=dict(
+                                 title='frequency (days)',
+                                 titlefont_size=16,
+                                 tickfont_size=14,),
+                             xaxis=dict(
+                                 title='% change in price',
+                                 titlefont_size=16,
+                                 tickfont_size=14,),
                              title=dict(text=f"Extended Hrs (skew = {x1.skew():.2f})"),
                              font=dict(size=15)
-                      )
+                             )
 
         st.plotly_chart(fig_x1, use_container_width=True)
 
@@ -195,7 +207,7 @@ def dist_fn():
                                   dist_labels,
                                   colors=dist_colors,
                                   bin_size=.25, show_rug=False,
-                             show_curve=False)
+                                  show_curve=False)
 
     dist_fig.update_layout(title_text='Reg & Ex Hrs Data Overlap',
                            bargap=0,
@@ -225,6 +237,10 @@ with st.container():
     if hist_type == 'Overlap Reg Hrs and Ex Hrs (1 plot)':
         dist_fn()
 
+# END of code block # # #
+
+# BEGIN new code block for summary statistics and IQR
+
 # multi-level columns
 items = pd.MultiIndex.from_tuples([('% change', 'Reg Hours'),('% change', 'Ex Hours')])
 
@@ -232,7 +248,7 @@ items = pd.MultiIndex.from_tuples([('% change', 'Reg Hours'),('% change', 'Ex Ho
 dataFrame = pd.DataFrame([[x0.min(), x1.min()],
                           [x0.mean(),x1.mean()],
                           [ x0.max(), x1.max()]],
-                          index=['min', 'mean', 'max'],
+                         index=['min', 'mean', 'max'],
                          columns=items)
 dataFrame = dataFrame.style.format(precision=2).highlight_max(color='#ffbe76').highlight_min(
     color='#95afc0')
@@ -256,7 +272,7 @@ with st.container():
         st.write(f"Range & mean")
         st.dataframe(dataFrame)
 
-    # with col6:
+        # with col6:
 
         fig_box = px.box(x0x1, points=False,
                          labels={'value': '% change in price', 'variable': ''},
@@ -305,15 +321,11 @@ with st.container():
             marker_color= Δ_df['color'],
             textposition='auto')])
         fig.update_layout(
-                          yaxis=dict(
-                              title='% change in price',
-                              titlefont_size=16,
-                              tickfont_size=14,),
-                          )
+            yaxis=dict(
+                title='% change in price',
+                titlefont_size=16,
+                tickfont_size=14,),
+        )
         st.plotly_chart(fig)
 
     bar_graph()
-
-
-
-
